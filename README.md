@@ -10,31 +10,25 @@ Try it out [HERE](https://josepedrodias.github.io/ld41-raceman/dist/)!
 Pacman meets racing game.
 Based on the pacman level ideas - a maze, a finite set of items to pick to complete the level,
 simple navigation for the ghosts, special items to pick up.
-The twist - you drive a race car. Ghosts may do too (?)
-There may be nitros too (?)
+The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up...
 
 
 
 ## TODO
 
-* ➡️ game loop setup (rendering, physics)
-
+* ~~game loop setup (rendering, physics)~~
+* ~~map loading~~
 * keyboard handling
-
-* basic level elements:
-  * hero
-  * walls
-  * dot item (score increase. when all picked, complete level)
-  * fat dot item (enemies vulnerable for x secs)
-  * baddies (pursuit and evade)
-  * pickups (nitros?)
-
-* scripted patrolling movement
-* basic enemy movement (replicate pacman or not?)
+* collisions against walls
+* basic movement
+* car-like movement
+* catch pickups
+* enemy movement
+* enemy behaviours: pursuit, evade
+* pickup results
+* interaction with enemies (who dies)
 * score and level completeness
-* artwork
-  * [normal lighting](http://pixijs.io/examples/#/layers/normals.js)
-
+* artwork work [normal lighting?](http://pixijs.io/examples/#/layers/normals.js)
 * menus
 
 
