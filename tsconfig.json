@@ -1,19 +1,13 @@
 {
   "compilerOptions": {
     "module": "es6",
-    "target": "es6",
+    "target": "es5",
     "noImplicitAny": true,
     "strictNullChecks": true,
     "removeComments": true,
-    "preserveConstEnums": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
+    "allowJs": true,
     "outDir": "dist"
-  },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  }
 }
