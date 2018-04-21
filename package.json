@@ -1,0 +1,26 @@
+{
+  "name": "ld41-raceman",
+  "version": "1.0.0",
+  "description": "A Ludum Dare Compo entry, hopefully...",
+  "main": "index.js",
+  "dependencies": {
+    "@types/matter-js": "^0.10.0",
+    "@types/pixi.js": "^4.7.3"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1",
+    "lite-server": "^2.3.0",
+    "typescript": "^2.8.3"
+  },
+  "scripts": {
+    "xstart": "tsc -w src/main.ts",
+    "start": "tsc && concurrently \"tsc -w\" \"lite-server --baseDir=\"dist\"\" ",
+    "build": "tsc src/main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:JosePedroDias/ld41-raceman.git"
+  },
+  "author": "José Pedro Dias <jose.pedro.dias@gmail.com>",
+  "license": "ISC"
+}
