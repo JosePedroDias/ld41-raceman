@@ -4,7 +4,9 @@ import {
   utils,
   Graphics,
   Texture,
-  DisplayObject
+  DisplayObject,
+  Container,
+  Point
 } from 'pixi.js';
 import { Composite, Engine, Body } from 'matter-js';
 import { BodyExt } from './main';
@@ -13,8 +15,45 @@ import { BodyExt } from './main';
 
 utils.skipHello();
 
+const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
+
 let app: Application;
-// let bunny: Sprite;
+let scene = new Container();
+
+let CAM_X0;
+let CAM_Y0;
+
+export function setZoom(z: number) {
+  app.stage.scale.set(z);
+}
+export function getZoom(): number {
+  return app.stage.scale.x;
+}
+
+export function setRotation(deg: number) {
+  app.stage.rotation = D2R * deg;
+}
+export function getRotation(): number {
+  return app.stage.rotation * R2D;
+}
+
+export function setPosition(point: Point) {
+  scene.position = point.clone();
+}
+export function getPosition(): Point {
+  // @ts-ignore
+  return scene.position.clone();
+}
+
+// @ts-ignore
+// window.setZoom = setZoom;
+
+// @ts-ignore
+// window.setRotation = setRotation;
+
+// @ts-ignore
+// window.setPosition = setPosition;
 
 const items: Array<DisplayObject> = [];
 
@@ -37,6 +76,12 @@ function polygon(body: BodyExt) {
   return g;
 }
 
+function sprite(body: BodyExt, app: Application) {
+  const sp = Sprite.fromImage(body.sprite);
+  sp.anchor.set(0.5);
+  return sp;
+}
+
 function rect(body: BodyExt, app: Application) {
   const g: Graphics = new Graphics();
   g.beginFill(body.color || 0xff22aa);
@@ -44,27 +89,31 @@ function rect(body: BodyExt, app: Application) {
   g.endFill();
   const tex: Texture = app.renderer.generateTexture(g);
   const sp = new Sprite(tex);
-  sp.anchor.set(0.5, 0.5);
+  sp.anchor.set(0.5);
   return sp;
 }
 
 export function setup() {
-  app = new Application(800, 600, { backgroundColor: 0x1099bb });
+  app = new Application(800, 600, { backgroundColor: 0x000000 });
   document.body.appendChild(app.view);
 
-  // bunny = Sprite.fromImage(
-  //   'http://pixijs.io/examples/required/assets/basics/bunny.png'
-  // );
-  // bunny.anchor.set(0.5);
-  // bunny.x = app.screen.width / 2;
-  // bunny.y = app.screen.height / 2;
-  // app.stage.addChild(bunny);
+  CAM_X0 = app.screen.width / 2;
+  CAM_Y0 = app.screen.height / 2;
+  app.stage.position.x = CAM_X0;
+  app.stage.position.y = CAM_Y0;
+
+  app.stage.scale.set(0.5);
+
+  app.stage.rotation = D2R * 0;
+
+  app.stage.addChild(scene);
 }
 
 export function renderFactory(engine: Engine) {
   let t0 = 0;
-  function render(t: number) {
-    const dt = (t - t0) / 1000;
+  function render(t_: number) {
+    const t = t_ / 1000;
+    const dt = t - t0;
     t0 = t;
 
     window.requestAnimationFrame(render);
@@ -74,22 +123,22 @@ export function renderFactory(engine: Engine) {
 
     if (t === 0) {
       bodies.forEach(body => {
-        console.log(body);
-        const g = rect(body, app);
+        // console.log(body);
+        const g = 'sprite' in body ? sprite(body, app) : rect(body, app);
         items.push(g);
-        app.stage.addChild(g);
+        scene.addChild(g);
       });
     } else {
       bodies.forEach((body, i) => {
         const g = items[i];
-        //g.position.x += 10 * dt;
         g.position.x = body.position.x;
         g.position.y = body.position.y;
         g.rotation = body.angle;
       });
     }
 
-    // bunny.rotation += 10 * dt;
+    setRotation(getRotation() + 15 * dt);
+    setZoom((1 + Math.sin(t * 2) * 0.5) * 0.75);
   }
 
   render(0);

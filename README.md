@@ -2,6 +2,8 @@
 
 A Ludum Dare Compo entry, hopefully...
 
+Try it out [HERE](https://josepedrodias.github.io/ld41-raceman/dist/)!
+
 
 ## Concept
 
@@ -31,6 +33,8 @@ There may be nitros too (?)
 * basic enemy movement (replicate pacman or not?)
 * score and level completeness
 * artwork
+  * [normal lighting](http://pixijs.io/examples/#/layers/normals.js)
+
 * menus
 
 
@@ -40,6 +44,27 @@ There may be nitros too (?)
 * pixi [reference](http://pixijs.download/dev/docs/)
 
 
+## Tools
+
+* [ezgif sprite cutter](https://ezgif.com/sprite-cutter)
+
+
 ## External artwork
 
 * Comfortaa font [src](https://www.dafont.com/comfortaa.font)
+
+
+
+## Placeholders
+
+These should not reach release stage but have been using in early devs:
+
+* textures from bandiracer [1](http://www.banditracer.eu/)
+* pacman sprites
+  [1](https://i.pinimg.com/originals/85/71/e5/8571e53e7056aac79b7c828a8a33c3bd.png)
+  [2](http://www.harryguillermo.com/games/pacman/pacman.php)
+
+
+## Make your own maps
+
+use your text editor with unicode support

@@ -14,8 +14,7 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
   },
-  // mode: process.env.NODE_ENV || 'development',
-  mode: 'development',
+  mode: process.env.NODE_ENV || 'development',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
