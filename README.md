@@ -12,14 +12,12 @@ The twist - you drive a race car. Ghosts may do too (?)
 There may be nitros too (?)
 
 
-## Not yet clear
-
-* the visuals - raw top-down 2d shapes? 2d texture sprites?
-* the simulation - simple collision detection or physics with inertia?
-* dumb or no sfx vs engine sounds with sound APIs?
-
 
 ## TODO
+
+* ➡️ game loop setup (rendering, physics)
+
+* keyboard handling
 
 * basic level elements:
   * hero
@@ -28,17 +26,20 @@ There may be nitros too (?)
   * fat dot item (enemies vulnerable for x secs)
   * baddies (pursuit and evade)
   * pickups (nitros?)
-* game loop setup
+
 * scripted patrolling movement
 * basic enemy movement (replicate pacman or not?)
 * score and level completeness
-* sfx
 * artwork
 * menus
 
 
-## Credits
+## Lib code credits
 
-* matterjs (?)
-* pixijs (?)
-* audio generation engine ()
+* matter [reference](http://brm.io/matter-js/docs/)
+* pixi [reference](http://pixijs.download/dev/docs/)
+
+
+## External artwork
+
+* Comfortaa font [src](https://www.dafont.com/comfortaa.font)
