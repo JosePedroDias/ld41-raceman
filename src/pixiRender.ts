@@ -39,7 +39,7 @@ export function getRotation(): number {
 }
 
 export function setPosition(point: Point) {
-  scene.position = point.clone();
+  scene.position = new Point(-point.x, -point.y);
 }
 export function getPosition(): Point {
   // @ts-ignore
@@ -61,8 +61,9 @@ function polygon(body: BodyExt) {
   const verts = body.vertices;
   var g = new PIXI.Graphics();
 
-  g.beginFill(body.color || 0xff3300);
-  g.lineStyle(2, 0xffd900, 1);
+  // g.blendMode = PIXI.BLEND_MODES.LIGHTEN;
+  g.beginFill(body.color || 0xff3300, 0.5);
+  g.lineStyle(1, 0xffffff, 1);
   verts.forEach((v, i) => {
     if (i === 0) {
       g.moveTo(v.x, v.y);
@@ -73,11 +74,17 @@ function polygon(body: BodyExt) {
   g.lineTo(verts[0].x, verts[0].y);
   g.endFill();
 
-  return g;
+  const tex: Texture = app.renderer.generateTexture(g);
+  const sp = new Sprite(tex);
+  sp.anchor.set(0.5);
+  return sp;
 }
 
 function sprite(body: BodyExt, app: Application) {
   const sp = Sprite.fromImage(body.sprite);
+  if ('scale' in body) {
+    sp.scale.set(body.scale);
+  }
   sp.anchor.set(0.5);
   return sp;
 }
@@ -102,9 +109,9 @@ export function setup() {
   app.stage.position.x = CAM_X0;
   app.stage.position.y = CAM_Y0;
 
-  app.stage.scale.set(0.5);
+  // app.stage.scale.set(2.5); // TEMP
 
-  app.stage.rotation = D2R * 0;
+  // app.stage.rotation = D2R * 0;
 
   app.stage.addChild(scene);
 }
@@ -124,7 +131,9 @@ export function renderFactory(engine: Engine) {
     if (t === 0) {
       bodies.forEach(body => {
         // console.log(body);
-        const g = 'sprite' in body ? sprite(body, app) : rect(body, app);
+        // const g = polygon(body);
+        // const g = 'sprite' in body ? sprite(body, app) : rect(body, app);
+        const g = 'sprite' in body ? sprite(body, app) : polygon(body);
         items.push(g);
         scene.addChild(g);
       });
@@ -137,8 +146,8 @@ export function renderFactory(engine: Engine) {
       });
     }
 
-    setRotation(getRotation() + 15 * dt);
-    setZoom((1 + Math.sin(t * 2) * 0.5) * 0.75);
+    //setRotation(getRotation() + 15 * dt);
+    //setZoom((1 + Math.sin(t * 2) * 0.5) * 0.75);
   }
 
   render(0);

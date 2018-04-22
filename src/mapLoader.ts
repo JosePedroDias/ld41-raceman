@@ -48,6 +48,7 @@ export function loadMap(mapName: string): Promise<Array<any>> {
       lines.forEach((l, li) => {
         l.split('').forEach((c, ci) => {
           let tex;
+          let sc = 1;
           switch (c) {
             case DOT:
               tex = 'DOT';
@@ -82,13 +83,33 @@ export function loadMap(mapName: string): Promise<Array<any>> {
               tex = 'BR';
               break;
 
+            case ' ':
+              break;
+
+            case 'G':
+              tex = 'G';
+              sc = 0.08;
+              break;
+
+            case 'B':
+              tex = 'B';
+              sc = 0.08;
+              break;
+
             default:
+              console.warn(
+                'unsupported char in map "%s" at line %s col %s',
+                c,
+                li,
+                ci
+              );
               return;
           }
           res.push({
             x: (ci - numCols / 2) * W,
             y: (li - numLines / 2) * W,
-            tex: tex
+            tex: tex,
+            scale: sc
           });
         });
       });

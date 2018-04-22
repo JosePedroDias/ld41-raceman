@@ -6,8 +6,10 @@
   "dependencies": {
     "@types/matter-js": "^0.10.0",
     "@types/pixi.js": "^4.7.3",
+    "howler": "^2.0.9",
     "matter-js": "^0.14.1",
-    "pixi.js": "^4.7.3"
+    "pixi.js": "^4.7.3",
+    "poly-decomp": "^0.2.1"
   },
   "devDependencies": {
     "ts-loader": "^4.2.0",

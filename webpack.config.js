@@ -1,7 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/main.ts',
+  entry: {
+    main: './src/main.ts',
+    exposePolyDecomp: './src/exposePolyDecomp.ts'
+  },
   module: {
     rules: [
       {
@@ -16,8 +19,10 @@ module.exports = {
   },
   mode: process.env.NODE_ENV || 'development',
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js',
+    sourceMapFilename: '[name].[hash:8].map',
+    chunkFilename: '[id].[hash:8].js'
   },
   devServer: {
     port: 3000,
