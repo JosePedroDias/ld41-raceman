@@ -9,6 +9,14 @@ export function polarMove(pos: Vector, r: number, angle: number): Vector {
   };
 }
 
+export function lerp(a: number, b: number, i: number) {
+  return i * a + (1 - i) * b;
+}
+
+export function lerp2(arrA: number[], arrB: number[], i: number) {
+  return [lerp(arrA[0], arrB[0], i), lerp(arrA[1], arrB[1], i)];
+}
+
 export function clamp(n: number, min: number, max: number): number {
   return n < min ? min : n > max ? max : n;
 }

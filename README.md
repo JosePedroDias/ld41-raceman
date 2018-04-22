@@ -21,7 +21,7 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 * ~~keyboard handling~~
 * ~~collisions against walls~~
 * ~~car-like movement~~
-* camera movement
+* ~~camera movement~~
 * catch pickups
 * enemy movement
 * enemy behaviours: pursuit, evade

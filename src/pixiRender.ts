@@ -41,7 +41,7 @@ export function setPosition(point: Point) {
 }
 export function getPosition(): Point {
   // @ts-ignore
-  return scene.position.clone();
+  return scene.position; //.clone();
 }
 
 // @ts-ignore

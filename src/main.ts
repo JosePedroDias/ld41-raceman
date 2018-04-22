@@ -8,7 +8,14 @@ import {
   Vector,
   IEventCollision
 } from 'matter-js';
-import { setup, renderFactory, setZoom, setPosition } from './pixiRender';
+import {
+  setup,
+  renderFactory,
+  setZoom,
+  setPosition,
+  getZoom,
+  getPosition
+} from './pixiRender';
 import { loadTxt, loadMap } from './mapLoader';
 import { polyBody } from './polyBody';
 import { Point } from 'pixi.js';
@@ -20,7 +27,7 @@ import {
   isDown,
   hookKeys
 } from './keyboard';
-import { clamp, sign } from './utils';
+import { clamp, sign, lerp } from './utils';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -118,6 +125,20 @@ loadMap('small').then(res => {
 
   Events.on(engine, 'beforeUpdate', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
+
+    // update camera
+    // @ts-ignore
+    const oldPos = getPosition();
+    // @ts-ignore
+    // setPosition({
+    //   x: lerp(playerBody.position.x, oldPos.x, 0.85),
+    //   y: lerp(playerBody.position.y, oldPos.y, 0.85)
+    // });
+    setPosition(playerBody.position);
+
+    setZoom(lerp(clamp(0.5 / playerBody.speed, 1, 2.5), getZoom(), 0.03));
+
+    // manipulate car according to keys being pressed
     const fwd = isDown[KC_UP] ? 1 : isDown[KC_DOWN] ? -0.5 : 0;
     const side = isDown[KC_LEFT] ? -1 : isDown[KC_RIGHT] ? 1 : 0;
 
