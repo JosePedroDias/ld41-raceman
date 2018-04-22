@@ -67,6 +67,9 @@ loadMap('original').then(res => {
       b2.dims = [w, h];
     }
 
+    if (item.tex === 'B') {
+      item.tex += ~~(Math.random() * 3);
+    }
     b2.sprite = `assets/sprites/placeholder/${item.tex}.png`;
     b2.scale = item.scale || 1;
 
