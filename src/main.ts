@@ -1,8 +1,26 @@
-import { Engine, World, Render, Bodies, Body, Vector } from 'matter-js';
+import {
+  Engine,
+  World,
+  Render,
+  Bodies,
+  Events,
+  Body,
+  Vector,
+  IEventCollision
+} from 'matter-js';
 import { setup, renderFactory, setZoom, setPosition } from './pixiRender';
 import { loadTxt, loadMap } from './mapLoader';
 import { polyBody } from './polyBody';
 import { Point } from 'pixi.js';
+import {
+  KC_UP,
+  KC_DOWN,
+  KC_LEFT,
+  KC_RIGHT,
+  isDown,
+  hookKeys
+} from './keyboard';
+import { clamp, sign } from './utils';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -32,7 +50,9 @@ const VERTS: { [index: string]: number[][] } = {
   BR: [[B, A], [C, A], [C, C], [A, C], [A, B], [B, B], [B, A]]
 };
 
-loadMap('original').then(res => {
+let playerBody: Body;
+
+loadMap('small').then(res => {
   // console.log(res);
 
   res.forEach(item => {
@@ -54,7 +74,7 @@ loadMap('original').then(res => {
       // @ts-ignore
       b2 = polyBody(item, poly, { isStatic });
     } else if (isCircle) {
-      const r = item.tex === 'DOT' ? 8 : 12;
+      const r = item.tex === 'DOT' ? 5 : 10;
       // @ts-ignore
       b2 = Bodies.circle(item.x, item.y, r, { isStatic });
     } else {
@@ -73,6 +93,13 @@ loadMap('original').then(res => {
     b2.sprite = `assets/sprites/placeholder/${item.tex}.png`;
     b2.scale = item.scale || 1;
 
+    if (item.tex === 'G') {
+      playerBody = b2;
+      playerBody.frictionAir = 0.3;
+      playerBody.friction = 0.1;
+      //playerBody.frictionStatic = 0.3;
+    }
+
     World.add(engine.world, b2);
   });
 
@@ -81,4 +108,34 @@ loadMap('original').then(res => {
 
   setZoom(2.5);
   setPosition(new Point(-140, 0));
+
+  Events.on(engine, 'collisionStart', (ev: any) => {
+    // collisionStart collisionEnd beforeUpdate beforeTick
+    ev.pairs.forEach((pair: any) => {
+      // console.log('%s %s', pair.bodyA.sprite, pair.bodyB.sprite);
+    });
+  });
+
+  Events.on(engine, 'beforeUpdate', (ev: any) => {
+    // collisionStart collisionEnd beforeUpdate beforeTick
+    const fwd = isDown[KC_UP] ? 1 : isDown[KC_DOWN] ? -0.5 : 0;
+    const side = isDown[KC_LEFT] ? -1 : isDown[KC_RIGHT] ? 1 : 0;
+
+    if (fwd) {
+      const p = fwd * 0.0013;
+      const ang = playerBody.angle - Math.PI / 2;
+      const v = {
+        x: p * Math.cos(ang),
+        y: p * Math.sin(ang)
+      };
+      Body.applyForce(playerBody, playerBody.position, v);
+    }
+
+    if (side) {
+      const spd = clamp(playerBody.speed, 0.01, 0.1);
+      Body.setAngularVelocity(playerBody, spd * side * sign(fwd));
+    }
+  });
+
+  hookKeys();
 });

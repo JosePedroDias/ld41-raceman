@@ -18,10 +18,10 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 
 * ~~game loop setup (rendering, physics)~~
 * ~~map loading~~
-* keyboard handling
-* collisions against walls
-* basic movement
-* car-like movement
+* ~~keyboard handling~~
+* ~~collisions against walls~~
+* ~~car-like movement~~
+* camera movement
 * catch pickups
 * enemy movement
 * enemy behaviours: pursuit, evade

@@ -10,13 +10,11 @@ import {
 } from 'pixi.js';
 import { Composite, Engine, Body } from 'matter-js';
 import { BodyExt } from './main';
+import { D2R, R2D } from './consts';
 
 // http://pixijs.io/examples/
 
 utils.skipHello();
-
-const D2R = Math.PI / 180;
-const R2D = 180 / Math.PI;
 
 let app: Application;
 let scene = new Container();

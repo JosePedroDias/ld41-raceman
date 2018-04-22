@@ -84,7 +84,7 @@ export function loadMap(mapName: string): Promise<Array<any>> {
               break;
 
             case ' ':
-              break;
+              return;
 
             case 'G':
               tex = 'G';
