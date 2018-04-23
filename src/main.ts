@@ -58,6 +58,7 @@ const VERTS: { [index: string]: number[][] } = {
 };
 
 let playerBody: Body;
+const foeBodies: Array<Body> = [];
 
 loadMap('small').then(res => {
   // console.log(res);
@@ -100,11 +101,14 @@ loadMap('small').then(res => {
     b2.sprite = `assets/sprites/placeholder/${item.tex}.png`;
     b2.scale = item.scale || 1;
 
-    if (item.tex === 'G') {
-      playerBody = b2;
-      playerBody.frictionAir = 0.3;
-      playerBody.friction = 0.1;
-      //playerBody.frictionStatic = 0.3;
+    if (isCar) {
+      b2.frictionAir = 0.3;
+      b2.friction = 0.1;
+      if (item.tex === 'G') {
+        playerBody = b2;
+      } else {
+        foeBodies.push(b2);
+      }
     }
 
     World.add(engine.world, b2);
@@ -123,6 +127,32 @@ loadMap('small').then(res => {
     });
   });
 
+  function driveCar(
+    carBody: Body,
+    pressingUp: boolean,
+    pressingDown: boolean,
+    pressingLeft: boolean,
+    pressingRight: boolean
+  ) {
+    const fwd = pressingUp ? 1 : pressingDown ? -0.5 : 0;
+    const side = pressingLeft ? -1 : pressingRight ? 1 : 0;
+
+    if (fwd) {
+      const p = fwd * 0.0013;
+      const ang = carBody.angle - Math.PI / 2;
+      const v = {
+        x: p * Math.cos(ang),
+        y: p * Math.sin(ang)
+      };
+      Body.applyForce(carBody, carBody.position, v);
+    }
+
+    if (side) {
+      const spd = clamp(carBody.speed, 0.01, 0.1);
+      Body.setAngularVelocity(carBody, spd * side * sign(fwd));
+    }
+  }
+
   Events.on(engine, 'beforeUpdate', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
 
@@ -139,23 +169,35 @@ loadMap('small').then(res => {
     setZoom(lerp(clamp(0.5 / playerBody.speed, 1, 2.5), getZoom(), 0.03));
 
     // manipulate car according to keys being pressed
-    const fwd = isDown[KC_UP] ? 1 : isDown[KC_DOWN] ? -0.5 : 0;
-    const side = isDown[KC_LEFT] ? -1 : isDown[KC_RIGHT] ? 1 : 0;
+    driveCar(
+      playerBody,
+      isDown[KC_UP],
+      isDown[KC_DOWN],
+      isDown[KC_LEFT],
+      isDown[KC_RIGHT]
+    );
 
-    if (fwd) {
-      const p = fwd * 0.0013;
-      const ang = playerBody.angle - Math.PI / 2;
-      const v = {
-        x: p * Math.cos(ang),
-        y: p * Math.sin(ang)
-      };
-      Body.applyForce(playerBody, playerBody.position, v);
-    }
+    foeBodies.forEach(foeBody => {
+      driveCar(foeBody, true, false, false, false);
+    });
 
-    if (side) {
-      const spd = clamp(playerBody.speed, 0.01, 0.1);
-      Body.setAngularVelocity(playerBody, spd * side * sign(fwd));
-    }
+    // const fwd = isDown[KC_UP] ? 1 : isDown[KC_DOWN] ? -0.5 : 0;
+    // const side = isDown[KC_LEFT] ? -1 : isDown[KC_RIGHT] ? 1 : 0;
+
+    // if (fwd) {
+    //   const p = fwd * 0.0013;
+    //   const ang = playerBody.angle - Math.PI / 2;
+    //   const v = {
+    //     x: p * Math.cos(ang),
+    //     y: p * Math.sin(ang)
+    //   };
+    //   Body.applyForce(playerBody, playerBody.position, v);
+    // }
+
+    // if (side) {
+    //   const spd = clamp(playerBody.speed, 0.01, 0.1);
+    //   Body.setAngularVelocity(playerBody, spd * side * sign(fwd));
+    // }
   });
 
   hookKeys();
