@@ -53,8 +53,6 @@ export function getPosition(): Point {
 // @ts-ignore
 // window.setPosition = setPosition;
 
-const items: Array<DisplayObject> = [];
-
 function polygon(body: BodyExt) {
   const verts = body.vertices;
   var g = new PIXI.Graphics();
@@ -84,6 +82,8 @@ function sprite(body: BodyExt, app: Application) {
     sp.scale.set(body.scale);
   }
   sp.anchor.set(0.5);
+  // @ts-ignore
+  body.sprite = sp;
   return sp;
 }
 
@@ -114,6 +114,13 @@ export function setup() {
   app.stage.addChild(scene);
 }
 
+export function removeSprite(body: BodyExt) {
+  // @ts-ignore
+  const sp: Sprite = body.sprite;
+  //sp.alpha = 0.25;
+  scene.removeChild(sp);
+}
+
 export function renderFactory(engine: Engine) {
   let t0 = 0;
   function render(t_: number) {
@@ -131,13 +138,17 @@ export function renderFactory(engine: Engine) {
         // console.log(body);
         // const g = polygon(body);
         // const g = 'sprite' in body ? sprite(body, app) : rect(body, app);
-        const g = 'sprite' in body ? sprite(body, app) : polygon(body);
-        items.push(g);
+        if (!('sprite' in body)) {
+          console.warn(body);
+        }
+        const g = sprite(body, app);
+
         scene.addChild(g);
       });
     } else {
       bodies.forEach((body, i) => {
-        const g = items[i];
+        // @ts-ignore
+        const g: DisplayObject = body.sprite;
         g.position.x = body.position.x;
         g.position.y = body.position.y;
         g.rotation = body.angle;

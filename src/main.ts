@@ -7,7 +7,8 @@ import {
   Body,
   Vector,
   IEventCollision,
-  Query
+  Query,
+  IPair
 } from 'matter-js';
 import {
   setup,
@@ -15,7 +16,8 @@ import {
   setZoom,
   setPosition,
   getZoom,
-  getPosition
+  getPosition,
+  removeSprite
 } from './pixiRender';
 import { loadTxt, loadMap } from './mapLoader';
 import { polyBody } from './polyBody';
@@ -35,8 +37,13 @@ export interface BodyExt extends Body {
   dims: Array<number>;
   color: number;
   sprite: string;
+  kind: string;
   scale: number;
 }
+
+let SCORE = 0;
+// @ts-ignore
+const scoreSpanEl: HTMLElement = document.querySelector('#score');
 
 const engine = Engine.create();
 
@@ -104,6 +111,7 @@ loadMap('small').then(res => {
     if (item.tex === 'B') {
       item.tex += ~~(Math.random() * 3);
     }
+    b2.kind = item.tex;
     b2.sprite = `assets/sprites/placeholder/${item.tex}.png`;
     b2.scale = item.scale || 1;
 
@@ -137,9 +145,36 @@ loadMap('small').then(res => {
   setZoom(2.5);
   setPosition(new Point(-140, 0));
 
+  let toKill: Array<Body> = [];
+
+  Events.on(engine, 'afterUpdate', (ev: any) => {
+    toKill.forEach((body: BodyExt) => {
+      removeSprite(body);
+      World.remove(engine.world, body);
+    });
+    toKill = [];
+  });
+
   Events.on(engine, 'collisionStart', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
-    ev.pairs.forEach((pair: any) => {
+    (ev.pairs as Array<IPair>).forEach((pair: IPair) => {
+      let otherBody: BodyExt;
+      if (pair.bodyA === playerBody) {
+        otherBody = pair.bodyB as BodyExt;
+      } else if (pair.bodyB === playerBody) {
+        otherBody = pair.bodyA as BodyExt;
+      } else {
+        return;
+      }
+
+      //console.log(otherBody.kind);
+      const k: string = otherBody.kind;
+      if (k && (k === 'DOT' || k === 'DOOT')) {
+        ++SCORE;
+        // @ts-ignore
+        scoreSpanEl.firstChild.nodeValue = SCORE;
+        toKill.push(otherBody);
+      }
       // console.log('%s %s', pair.bodyA.sprite, pair.bodyB.sprite);
     });
   });
@@ -253,16 +288,9 @@ loadMap('small').then(res => {
   Events.on(engine, 'beforeUpdate', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
 
-    // update camera
-    // @ts-ignore
     const oldPos = getPosition();
     // @ts-ignore
-    // setPosition({
-    //   x: lerp(playerBody.position.x, oldPos.x, 0.85),
-    //   y: lerp(playerBody.position.y, oldPos.y, 0.85)
-    // });
     setPosition(playerBody.position);
-
     setZoom(lerp(clamp(0.5 / playerBody.speed, 1, 2.5), getZoom(), 0.03));
 
     // manipulate car according to keys being pressed
