@@ -28,7 +28,6 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 * ~~wrap around~~
 * ~~score and level completeness~~
 * artwork work [normal lighting?](http://pixijs.io/examples/#/layers/normals.js)
-* menus
 
 
 ## Lib code credits

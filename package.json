@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/matter-js": "^0.10.0",
     "@types/pixi.js": "^4.7.3",
+    "cross-env": "^5.1.4",
     "howler": "^2.0.9",
     "matter-js": "^0.14.1",
     "pixi.js": "^4.7.3",
@@ -21,7 +22,7 @@
   },
   "scripts": {
     "start": "webpack-dev-server --content-base=dist",
-    "build": "NODE_ENV=production webpack"
+    "build": "cross-env NODE_ENV=production webpack"
   },
   "repository": {
     "type": "git",
