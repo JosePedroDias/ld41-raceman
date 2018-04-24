@@ -35,7 +35,20 @@ const BR = '┛';
 
 const W = 32;
 
-export function loadMap(mapName: string): Promise<Array<any>> {
+export type MapItem = {
+  x: number;
+  y: number;
+  tex: string;
+  scale: number;
+};
+
+export type MapResult = {
+  items: Array<MapItem>;
+  totalDots: number;
+  limits: { x0: number; x1: number; y0: number; y1: number };
+};
+
+export function loadMap(mapName: string): Promise<MapResult> {
   return new Promise((resolve: any) => {
     loadTxt(`assets/maps/${mapName}.txt`).then(txt => {
       const lines = txt.split('\n');
@@ -43,6 +56,8 @@ export function loadMap(mapName: string): Promise<Array<any>> {
       const numLines = lines.length;
       const lineLens = lines.map(l => l.length);
       const numCols = Math.max.apply(null, lineLens);
+
+      let numDots = 0;
 
       const res: Array<any> = [];
       lines.forEach((l, li) => {
@@ -52,9 +67,11 @@ export function loadMap(mapName: string): Promise<Array<any>> {
           switch (c) {
             case DOT:
               tex = 'DOT';
+              ++numDots;
               break;
             case DOOT:
               tex = 'DOOT';
+              ++numDots;
               break;
 
             case V:
@@ -113,7 +130,16 @@ export function loadMap(mapName: string): Promise<Array<any>> {
           });
         });
       });
-      resolve(res);
+      resolve({
+        items: res,
+        totalDots: numDots,
+        limits: {
+          x0: numCols * W / -2,
+          y0: numLines * W / -2,
+          x1: numCols * W / 2,
+          y1: numCols * W / 2
+        }
+      });
     });
   });
 }

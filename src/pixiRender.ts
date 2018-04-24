@@ -60,14 +60,16 @@ function polygon(body: BodyExt) {
   // g.blendMode = PIXI.BLEND_MODES.LIGHTEN;
   g.beginFill(body.color || 0xff3300, 0.5);
   g.lineStyle(1, 0xffffff, 1);
+  const p = body.position;
   verts.forEach((v, i) => {
+    const v2 = { x: v.x + p.x, y: v.y + p.y };
     if (i === 0) {
-      g.moveTo(v.x, v.y);
+      g.moveTo(v2.x, v2.y);
     } else {
-      g.lineTo(v.x, v.y);
+      g.lineTo(v2.x, v2.y);
     }
   });
-  g.lineTo(verts[0].x, verts[0].y);
+  g.lineTo(verts[0].x + p.x, verts[0].y + p.y);
   g.endFill();
 
   const tex: Texture = app.renderer.generateTexture(g);
@@ -121,12 +123,22 @@ export function removeSprite(body: BodyExt) {
   scene.removeChild(sp);
 }
 
+let running = true;
+
+export function stopEngine() {
+  running = false;
+}
+
 export function renderFactory(engine: Engine) {
   let t0 = 0;
   function render(t_: number) {
     const t = t_ / 1000;
     const dt = t - t0;
     t0 = t;
+
+    if (!running) {
+      return;
+    }
 
     window.requestAnimationFrame(render);
     Engine.update(engine, 1000 / 60);
@@ -135,13 +147,13 @@ export function renderFactory(engine: Engine) {
 
     if (t === 0) {
       bodies.forEach(body => {
-        // console.log(body);
-        // const g = polygon(body);
-        // const g = 'sprite' in body ? sprite(body, app) : rect(body, app);
+        let g: DisplayObject;
         if (!('sprite' in body)) {
-          console.warn(body);
+          //g = polygon(body);
+          return;
+        } else {
+          g = sprite(body, app);
         }
-        const g = sprite(body, app);
 
         scene.addChild(g);
       });
@@ -149,6 +161,9 @@ export function renderFactory(engine: Engine) {
       bodies.forEach((body, i) => {
         // @ts-ignore
         const g: DisplayObject = body.sprite;
+        if (!g) {
+          return;
+        }
         g.position.x = body.position.x;
         g.position.y = body.position.y;
         g.rotation = body.angle;

@@ -17,9 +17,10 @@ import {
   setPosition,
   getZoom,
   getPosition,
-  removeSprite
+  removeSprite,
+  stopEngine
 } from './pixiRender';
-import { loadTxt, loadMap } from './mapLoader';
+import { loadTxt, loadMap, MapResult } from './mapLoader';
 import { polyBody } from './polyBody';
 import { Point } from 'pixi.js';
 import {
@@ -42,8 +43,11 @@ export interface BodyExt extends Body {
 }
 
 let SCORE = 0;
+let LEVEL_COMPLETE_SCORE = 0;
 // @ts-ignore
 const scoreSpanEl: HTMLElement = document.querySelector('#score');
+//@ts-ignore
+const allSpanEl: HTMLElement = document.querySelector('#all');
 
 const engine = Engine.create();
 
@@ -82,7 +86,10 @@ const foeBodies: Array<Body> = [];
 const foeDatas: Array<FoeData> = [];
 const walls: Array<Body> = [];
 
-loadMap('small').then(res => {
+loadMap('original2').then((res0: MapResult) => {
+  const { items: res, totalDots: LEVEL_COMPLETE_SCORE, limits: lims } = res0;
+  // @ts-ignore
+  allSpanEl.firstChild.nodeValue = LEVEL_COMPLETE_SCORE;
   res.forEach(item => {
     const isCar = ['B', 'G'].indexOf(item.tex) !== -1;
     const isCircle = ['DOT', 'DOOT'].indexOf(item.tex) !== -1;
@@ -139,6 +146,20 @@ loadMap('small').then(res => {
     //}
   });
 
+  // add boundary elements to wrap around
+  //Engine.update(engine, 1000 / 60);
+  //console.log(lims);
+  let b3 = Bodies.rectangle(lims.x0 - 34, lims.y0, 64, lims.y1 - lims.y0, {
+    isStatic: true
+  }) as BodyExt;
+  b3.kind = 'X';
+  World.add(engine.world, b3);
+  b3 = Bodies.rectangle(lims.x1 + 30, lims.y0, 64, lims.y1 - lims.y0, {
+    isStatic: true
+  }) as BodyExt;
+  b3.kind = 'X';
+  World.add(engine.world, b3);
+
   setup();
   renderFactory(engine);
 
@@ -146,6 +167,7 @@ loadMap('small').then(res => {
   setPosition(new Point(-140, 0));
 
   let toKill: Array<Body> = [];
+  let toWrap: Array<Body> = [];
 
   Events.on(engine, 'afterUpdate', (ev: any) => {
     toKill.forEach((body: BodyExt) => {
@@ -153,29 +175,56 @@ loadMap('small').then(res => {
       World.remove(engine.world, body);
     });
     toKill = [];
+
+    toWrap.forEach((body: Body) => {
+      Body.setPosition(body, {
+        x: -body.position.x + 60 * sign(body.position.x),
+        y: body.position.y
+      });
+    });
+    toWrap = [];
   });
 
   Events.on(engine, 'collisionStart', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
     (ev.pairs as Array<IPair>).forEach((pair: IPair) => {
+      // @ts-ignore
+      const bA: BodyExt = pair.bodyA;
+      // @ts-ignore
+      const bB: BodyExt = pair.bodyB;
       let otherBody: BodyExt;
-      if (pair.bodyA === playerBody) {
-        otherBody = pair.bodyB as BodyExt;
-      } else if (pair.bodyB === playerBody) {
-        otherBody = pair.bodyA as BodyExt;
+
+      // detect wrap
+      if (bA.kind === 'X') {
+        return toWrap.push(bB);
+      } else if (bB.kind === 'X') {
+        return toWrap.push(bA);
+      }
+
+      // collision against player
+      if (bA === playerBody) {
+        otherBody = bB as BodyExt;
+      } else if (bB === playerBody) {
+        otherBody = bA as BodyExt;
       } else {
         return;
       }
 
-      //console.log(otherBody.kind);
       const k: string = otherBody.kind;
-      if (k && (k === 'DOT' || k === 'DOOT')) {
+      if (k === 'DOT' || k === 'DOOT') {
         ++SCORE;
         // @ts-ignore
         scoreSpanEl.firstChild.nodeValue = SCORE;
         toKill.push(otherBody);
+
+        if (SCORE === LEVEL_COMPLETE_SCORE) {
+          stopEngine();
+          window.alert('GAME OVER - YOU WON!');
+        }
+      } else if (foeBodies.indexOf(otherBody) !== -1) {
+        stopEngine();
+        window.alert('GAME OVER - CRASHED');
       }
-      // console.log('%s %s', pair.bodyA.sprite, pair.bodyB.sprite);
     });
   });
 

@@ -24,11 +24,9 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 * ~~camera movement~~
 * ~~catch pickups~~
 * ~~enemy movement~~
-* wrap around
-* enemy behaviours: pursuit, evade
-* pickup results
-* interaction with enemies (who dies)
-* score and level completeness
+* ~~running agaist enemy is game over~~
+* ~~wrap around~~
+* ~~score and level completeness~~
 * artwork work [normal lighting?](http://pixijs.io/examples/#/layers/normals.js)
 * menus
 
