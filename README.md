@@ -1,8 +1,12 @@
 # LD41 - Raceman
 
-A Ludum Dare Compo entry, hopefully...
+A Ludum Dare Jam entry
 
-Try it out [HERE](https://josepedrodias.github.io/ld41-raceman/dist/)!
+[Game page on LDJam](https://ldjam.com/events/ludum-dare/41/raceman).
+
+Play it here [HERE](https://josepedrodias.github.io/ld41-raceman/dist/)!
+
+Use the arrow keys to move your car. Pick every dot while avoiding the enemy cars.
 
 
 ## Concept
@@ -45,10 +49,6 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 
 * Comfortaa font [src](https://www.dafont.com/comfortaa.font)
 
-
-
-## Placeholders
-
 These should not reach release stage but have been using in early devs:
 
 * textures from bandiracer [1](http://www.banditracer.eu/)
@@ -56,7 +56,4 @@ These should not reach release stage but have been using in early devs:
   [1](https://i.pinimg.com/originals/85/71/e5/8571e53e7056aac79b7c828a8a33c3bd.png)
   [2](http://www.harryguillermo.com/games/pacman/pacman.php)
 
-
-## Make your own maps
-
-use your text editor with unicode support
+...they ended up being the final graphics due to time constraints so I opted out of this category :/
