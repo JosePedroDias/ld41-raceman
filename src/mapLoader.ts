@@ -33,6 +33,8 @@ const TR = '┓';
 const BL = '┗';
 const BR = '┛';
 
+export const WALL_TEXS = [H, H1, H2, V, TL, TR, BL, BR];
+
 const W = 32;
 
 export type MapItem = {

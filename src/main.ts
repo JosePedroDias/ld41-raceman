@@ -31,8 +31,11 @@ import {
   isDown,
   hookKeys
 } from './keyboard';
-import { clamp, sign, lerp } from './utils';
+import { clamp, sign, lerp, dist, distSquared, rayDist } from './utils';
 import { D2R } from './consts';
+import { VERTS } from './VERTS';
+import { toWaypoints } from './waypoints';
+import { addBot, foeBodies, chooseCarDir } from './bot';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -54,42 +57,17 @@ const engine = Engine.create();
 engine.world.gravity.x = 0;
 engine.world.gravity.y = 0;
 
-const A = -16;
-const B = -12;
-const C = 12;
-const D = 16;
-
-const VERTS: { [index: string]: number[][] } = {
-  H: [[A, B], [D, B], [D, C], [A, C], [A, B]],
-  H1: [[B, B], [D, B], [D, C], [B, C], [B, B]],
-  H2: [[A, B], [C, B], [C, C], [A, C], [A, B]],
-  V: [[B, A], [C, A], [C, D], [B, D], [B, A]],
-  TL: [[B, B], [D, B], [D, C], [C, C], [C, D], [B, D], [B, B]],
-  TR: [[A, B], [C, B], [C, D], [B, D], [B, C], [A, C], [A, B]],
-  BL: [[B, A], [C, A], [C, B], [D, B], [D, C], [B, C], [B, A]],
-  BR: [[B, A], [C, A], [C, C], [A, C], [A, B], [B, B], [B, A]]
-};
-
-function now() {
-  return new Date().valueOf();
-}
-
-type FoeData = {
-  lastStop: number;
-  lastPos: Vector;
-  n: number;
-  lastChoice: string;
-};
-
 let playerBody: Body;
-const foeBodies: Array<Body> = [];
-const foeDatas: Array<FoeData> = [];
 const walls: Array<Body> = [];
 
 loadMap('original2').then((res0: MapResult) => {
   const { items: res, totalDots: LEVEL_COMPLETE_SCORE, limits: lims } = res0;
   // @ts-ignore
   allSpanEl.firstChild.nodeValue = LEVEL_COMPLETE_SCORE;
+
+  const wps = toWaypoints(res);
+  console.log(wps);
+
   res.forEach(item => {
     const isCar = ['B', 'G'].indexOf(item.tex) !== -1;
     const isCircle = ['DOT', 'DOOT'].indexOf(item.tex) !== -1;
@@ -128,13 +106,7 @@ loadMap('original2').then((res0: MapResult) => {
       if (item.tex === 'G') {
         playerBody = b2;
       } else {
-        foeBodies.push(b2);
-        foeDatas.push({
-          lastStop: 0,
-          lastPos: { x: 0, y: 0 },
-          lastChoice: 'U',
-          n: 1
-        });
+        addBot(b2);
       }
     }
 
@@ -228,86 +200,6 @@ loadMap('original2').then((res0: MapResult) => {
     });
   });
 
-  function rayDist(body: Body, dAngle: number, dMin: number, dMax: number) {
-    const p0 = body.position;
-    const v0 = {
-      x: p0.x + dMin * Math.cos(body.angle + dAngle),
-      y: p0.y + dMin * Math.sin(body.angle + dAngle)
-    };
-    const v1 = {
-      x: p0.x + dMax * Math.cos(body.angle + dAngle),
-      y: p0.y + dMax * Math.sin(body.angle + dAngle)
-    };
-    const o = Query.ray(walls, v0, v1, dMax); // engine.world.bodies
-    let d = 10000;
-    if (o.length > 0) {
-      let b1 = o[0].body as Body;
-      if (b1 === body) {
-        b1 = o[1].body as Body;
-      }
-      const p1 = b1.position;
-      return distSquared(p0, p1);
-    }
-    return d;
-  }
-
-  function distSquared(p0: Vector, p1: Vector) {
-    const dx = p0.x - p1.x;
-    const dy = p0.y - p1.y;
-    return dx * dx + dy * dy;
-  }
-
-  function dist(p0: Vector, p1: Vector) {
-    const dx = p0.x - p1.x;
-    const dy = p0.y - p1.y;
-    return Math.abs(dx * dx + dy * dy);
-  }
-
-  const N_STEPS = 40;
-
-  const D_ANGLE = D2R * 25;
-  const D_MIN = 40;
-  function chooseCarDir(carBody: Body, i: number) {
-    const fd = foeDatas[i];
-    fd.n--;
-    if (fd.n === 0) {
-      fd.n = N_STEPS;
-      const dSq = distSquared(carBody.position, fd.lastPos);
-      // console.log(dSq);
-      if (dSq < 100) {
-        fd.lastChoice = 'D';
-      } else {
-        const dFront = rayDist(carBody, 0, D_MIN, 160);
-        const dLeft = rayDist(carBody, -D_ANGLE, D_MIN, 160);
-        const dRight = rayDist(carBody, D_ANGLE, D_MIN, 160);
-        if (dFront < dLeft) {
-          if (dFront < dRight) {
-            fd.lastChoice = 'U';
-          } else {
-            fd.lastChoice = 'UL';
-          }
-        } else {
-          if (dLeft < dRight) {
-            fd.lastChoice = 'UL';
-          } else {
-            fd.lastChoice = 'UR';
-          }
-        }
-      }
-    }
-
-    switch (fd.lastChoice) {
-      case 'U':
-        return { up: true };
-      case 'UL':
-        return { up: true, left: true };
-      case 'UR':
-        return { up: true, right: true };
-      default:
-        return { down: true };
-    }
-  }
-
   function driveCar(
     carBody: Body,
     pressingUp: boolean,
@@ -352,7 +244,7 @@ loadMap('original2').then((res0: MapResult) => {
     );
 
     foeBodies.forEach((foeBody, i) => {
-      const dirs = chooseCarDir(foeBody, i);
+      const dirs = chooseCarDir(foeBody, i, walls);
       // @ts-ignore
       driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
     });

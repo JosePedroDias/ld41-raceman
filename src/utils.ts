@@ -1,5 +1,17 @@
-import { Vector } from 'matter-js';
+import { Vector, Body, Query } from 'matter-js';
 import { D2R } from './consts';
+
+export function distSquared(p0: Vector, p1: Vector) {
+  const dx = p0.x - p1.x;
+  const dy = p0.y - p1.y;
+  return dx * dx + dy * dy;
+}
+
+export function dist(p0: Vector, p1: Vector) {
+  const dx = p0.x - p1.x;
+  const dy = p0.y - p1.y;
+  return Math.abs(dx * dx + dy * dy);
+}
 
 export function polarMove(pos: Vector, r: number, angle: number): Vector {
   const a = D2R * angle;
@@ -36,4 +48,37 @@ export function linearize(n: number, a: number, b: number): number {
 
 export function sign(n: number) {
   return n > 0 ? 1 : n < 0 ? -1 : 0;
+}
+
+export function rayDist(
+  body: Body,
+  walls: Array<Body>,
+  dAngle: number,
+  dMin: number,
+  dMax: number
+) {
+  const p0 = body.position;
+  const v0 = {
+    x: p0.x + dMin * Math.cos(body.angle + dAngle),
+    y: p0.y + dMin * Math.sin(body.angle + dAngle)
+  };
+  const v1 = {
+    x: p0.x + dMax * Math.cos(body.angle + dAngle),
+    y: p0.y + dMax * Math.sin(body.angle + dAngle)
+  };
+  const o = Query.ray(walls, v0, v1, dMax); // engine.world.bodies
+  let d = 10000;
+  if (o.length > 0) {
+    let b1 = o[0].body as Body;
+    if (b1 === body) {
+      b1 = o[1].body as Body;
+    }
+    const p1 = b1.position;
+    return distSquared(p0, p1);
+  }
+  return d;
+}
+
+export function now() {
+  return new Date().valueOf();
 }
