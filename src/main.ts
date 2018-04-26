@@ -119,8 +119,6 @@ loadMap('original2').then((res0: MapResult) => {
   });
 
   // add boundary elements to wrap around
-  //Engine.update(engine, 1000 / 60);
-  //console.log(lims);
   let b3 = Bodies.rectangle(lims.x0 - 34, lims.y0, 64, lims.y1 - lims.y0, {
     isStatic: true
   }) as BodyExt;
