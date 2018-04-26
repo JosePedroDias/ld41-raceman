@@ -3,11 +3,20 @@ import { Vector, Body } from 'matter-js';
 import { D2R } from './consts';
 
 import { distSquared, rayDist } from './utils';
+import { WP } from './waypoints';
+
+let wps: Array<WP> = [];
+let walls: Array<Body> = [];
 
 const N_STEPS = 40;
 
 const D_ANGLE = D2R * 25;
 const D_MIN = 40;
+
+export function bootstrapBots(_wps: Array<WP>, _walls: Array<Body>) {
+  wps = _wps;
+  walls = _walls;
+}
 
 type FoeData = {
   lastStop: number;

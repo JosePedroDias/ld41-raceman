@@ -35,7 +35,7 @@ import { clamp, sign, lerp, dist, distSquared, rayDist } from './utils';
 import { D2R } from './consts';
 import { VERTS } from './VERTS';
 import { toWaypoints } from './waypoints';
-import { addBot, foeBodies, chooseCarDir } from './bot';
+import { addBot, foeBodies, chooseCarDir, bootstrapBots } from './bot';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -66,7 +66,7 @@ loadMap('original2').then((res0: MapResult) => {
   allSpanEl.firstChild.nodeValue = LEVEL_COMPLETE_SCORE;
 
   const wps = toWaypoints(res);
-  console.log(wps);
+  bootstrapBots(wps, walls);
 
   res.forEach(item => {
     const isCar = ['B', 'G'].indexOf(item.tex) !== -1;
