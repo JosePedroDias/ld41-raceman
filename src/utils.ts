@@ -10,7 +10,19 @@ export function distSquared(p0: Vector, p1: Vector) {
 export function dist(p0: Vector, p1: Vector) {
   const dx = p0.x - p1.x;
   const dy = p0.y - p1.y;
-  return Math.abs(dx * dx + dy * dy);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+export function len(v: Vector) {
+  return Math.sqrt(v.x * v.x + v.y * v.y);
+}
+
+export function normalize(v: Vector, scale: number = 1) {
+  const dst: number = len(v);
+  return {
+    x: scale * v.x / dst,
+    y: scale * v.y / dst
+  };
 }
 
 export function polarMove(pos: Vector, r: number, angle: number): Vector {
@@ -81,4 +93,8 @@ export function rayDist(
 
 export function now() {
   return new Date().valueOf();
+}
+
+export function randomInt(n: number) {
+  return ~~(Math.random() * n);
 }

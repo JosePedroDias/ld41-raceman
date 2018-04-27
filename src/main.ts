@@ -35,7 +35,7 @@ import { clamp, sign, lerp, dist, distSquared, rayDist } from './utils';
 import { D2R } from './consts';
 import { VERTS } from './VERTS';
 import { toWaypoints } from './waypoints';
-import { addBot, foeBodies, chooseCarDir, bootstrapBots } from './bot';
+import { addBot, bootstrapBots, chooseCarDir2, getFoeBodies } from './bot';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -191,7 +191,7 @@ loadMap('original2').then((res0: MapResult) => {
           stopEngine();
           window.alert('GAME OVER - YOU WON!');
         }
-      } else if (foeBodies.indexOf(otherBody) !== -1) {
+      } else if (getFoeBodies().indexOf(otherBody) !== -1) {
         stopEngine();
         window.alert('GAME OVER - CRASHED');
       }
@@ -224,6 +224,10 @@ loadMap('original2').then((res0: MapResult) => {
     }
   }
 
+  function moveCar(carBody: Body, dir: Vector) {
+    Body.applyForce(carBody, carBody.position, dir);
+  }
+
   Events.on(engine, 'beforeUpdate', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
 
@@ -241,10 +245,12 @@ loadMap('original2').then((res0: MapResult) => {
       isDown[KC_RIGHT]
     );
 
-    foeBodies.forEach((foeBody, i) => {
-      const dirs = chooseCarDir(foeBody, i, walls);
+    getFoeBodies().forEach((foeBody, i) => {
+      const v = chooseCarDir2(foeBody, i, playerBody);
+      //const dirs = chooseCarDir(foeBody, i, playerBody);
       // @ts-ignore
-      driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
+      //driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
+      moveCar(foeBody, v);
     });
   });
 

@@ -2,8 +2,8 @@ import { Vector, Body } from 'matter-js';
 
 import { D2R } from './consts';
 
-import { distSquared, rayDist } from './utils';
-import { WP } from './waypoints';
+import { distSquared, rayDist, randomInt, dist, normalize } from './utils';
+import { WP, nearestWaypoint, chooseDirection } from './waypoints';
 
 let wps: Array<WP> = [];
 let walls: Array<Body> = [];
@@ -19,26 +19,71 @@ export function bootstrapBots(_wps: Array<WP>, _walls: Array<Body>) {
 }
 
 type FoeData = {
-  lastStop: number;
-  lastPos: Vector;
-  n: number;
-  lastChoice: string;
+  // lastStop: number;
+  // lastPos: Vector;
+  // lastChoice: string;
+  // n: number;
+  electedWP: WP;
+  lastVisitedWPs: Array<WP>;
 };
 
-export const foeDatas: Array<FoeData> = [];
-export const foeBodies: Array<Body> = [];
+const foeDatas: Array<FoeData> = [];
+const foeBodies: Array<Body> = [];
+
+export function getFoeBodies(): Array<Body> {
+  return foeBodies;
+}
 
 export function addBot(foeBody: Body) {
   foeBodies.push(foeBody);
   foeDatas.push({
-    lastStop: 0,
-    lastPos: { x: 0, y: 0 },
-    lastChoice: 'U',
-    n: 1
+    /*     lastStop: 0,
+    lastPos: { x: 0, y: 0 },*/
+    // lastChoice: 'U',
+    // n: 1 + randomInt(N_STEPS),
+    electedWP: nearestWaypoint(wps, foeBody.position),
+    lastVisitedWPs: []
   });
 }
 
-export function chooseCarDir(carBody: Body, i: number, walls: Array<Body>) {
+function dirToKeys(dir: string) {
+  switch (dir) {
+    case 'U':
+      return { up: true };
+    case 'UL':
+      return { up: true, left: true };
+    case 'UR':
+      return { up: true, right: true };
+    default:
+      return { down: true };
+  }
+}
+
+export function chooseCarDir2(carBody: Body, i: number, playerBody: Body) {
+  //console.log('a', carBody, 'b', i, 'c', playerBody);
+  const fd = foeDatas[i];
+
+  const d = dist(carBody.position, fd.electedWP.position);
+  if (d < 2) {
+    fd.lastVisitedWPs.push(fd.electedWP);
+    if (fd.lastVisitedWPs.length > 3) {
+      fd.lastVisitedWPs.shift();
+    }
+    fd.electedWP = chooseDirection(
+      fd.electedWP,
+      playerBody.position,
+      fd.lastVisitedWPs
+    );
+  }
+
+  const v = {
+    x: playerBody.position.x - carBody.position.x,
+    y: playerBody.position.y - carBody.position.y
+  };
+  return normalize(v, 0.0003);
+}
+
+/* export function chooseCarDir(carBody: Body, i: number, playerBody: Body) {
   const fd = foeDatas[i];
   fd.n--;
   if (fd.n === 0) {
@@ -67,14 +112,5 @@ export function chooseCarDir(carBody: Body, i: number, walls: Array<Body>) {
     }
   }
 
-  switch (fd.lastChoice) {
-    case 'U':
-      return { up: true };
-    case 'UL':
-      return { up: true, left: true };
-    case 'UR':
-      return { up: true, right: true };
-    default:
-      return { down: true };
-  }
-}
+  return dirToKeys(fd.lastChoice);
+} */
