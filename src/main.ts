@@ -246,10 +246,11 @@ loadMap('original2').then((res0: MapResult) => {
     );
 
     getFoeBodies().forEach((foeBody, i) => {
-      const v = chooseCarDir2(foeBody, i, playerBody);
       //const dirs = chooseCarDir(foeBody, i, playerBody);
       // @ts-ignore
       //driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
+
+      const v = chooseCarDir2(foeBody, i, playerBody);
       moveCar(foeBody, v);
     });
   });

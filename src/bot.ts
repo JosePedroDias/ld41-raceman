@@ -1,8 +1,16 @@
 import { Vector, Body } from 'matter-js';
 
-import { D2R } from './consts';
+import { D2R, R2D } from './consts';
 
-import { distSquared, rayDist, randomInt, dist, normalize } from './utils';
+import {
+  distSquared,
+  rayDist,
+  randomInt,
+  dist,
+  normalize,
+  vecToAngle,
+  normalizeAngle
+} from './utils';
 import { WP, nearestWaypoint, chooseDirection } from './waypoints';
 
 let wps: Array<WP> = [];
@@ -80,6 +88,30 @@ export function chooseCarDir2(carBody: Body, i: number, playerBody: Body) {
     x: playerBody.position.x - carBody.position.x,
     y: playerBody.position.y - carBody.position.y
   };
+
+  // const a = normalizeAngle(vecToAngle(v));
+  // const b = normalizeAngle(carBody.angle);
+
+  // let d1 = normalizeAngle(a - b);
+  // let d2 = normalizeAngle(a + b);
+  // if (d1 > Math.PI) {
+  //   d1 -= 2 * Math.PI;
+  // }
+  // if (d2 > 2 * Math.PI) {
+  //   d2 -= 2 * Math.PI;
+  // }
+  // const dir = Math.abs(d1) < 180 ? 'L' : 'R';
+
+  // console.log(
+  //   'a %s | b %s | %s',
+  //   (R2D * d1).toFixed(0),
+  //   (R2D * d2).toFixed(0),
+  //   dir
+  // );
+  // // TODO NOT YET OK
+
+  // return { up: true, left: dir === 'L', right: dir === 'R' };
+
   return normalize(v, 0.0003);
 }
 

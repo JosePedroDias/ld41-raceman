@@ -1,6 +1,8 @@
 import { Vector, Body, Query } from 'matter-js';
 import { D2R } from './consts';
 
+const R360 = Math.PI * 2;
+
 export function distSquared(p0: Vector, p1: Vector) {
   const dx = p0.x - p1.x;
   const dy = p0.y - p1.y;
@@ -61,6 +63,24 @@ export function linearize(n: number, a: number, b: number): number {
 export function sign(n: number) {
   return n > 0 ? 1 : n < 0 ? -1 : 0;
 }
+
+export function vecToAngle(v: Vector) {
+  return Math.atan2(v.y, v.x);
+}
+
+export function normalizeAngle(a: number) {
+  while (a < 0) {
+    a += R360;
+  }
+  while (a > R360) {
+    a -= R360;
+  }
+  return a;
+}
+
+// export function compareAngles(a0:number, a1:number) {
+//   if (Math.)
+// }
 
 export function rayDist(
   body: Body,
