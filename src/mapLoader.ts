@@ -1,3 +1,5 @@
+import { Vector } from '../node_modules/@types/matter-js/index';
+
 export function loadTxt(url: string): Promise<string> {
   return new Promise((resolve: any, reject: any) => {
     const xhr = new XMLHttpRequest();
@@ -48,6 +50,7 @@ export type MapResult = {
   items: Array<MapItem>;
   totalDots: number;
   limits: { x0: number; x1: number; y0: number; y1: number };
+  navigatable: Array<Vector>;
 };
 
 export function loadMap(mapName: string): Promise<MapResult> {
@@ -61,19 +64,26 @@ export function loadMap(mapName: string): Promise<MapResult> {
 
       let numDots = 0;
 
+      const navigatable: Array<Vector> = [];
+
       const res: Array<any> = [];
       lines.forEach((l, li) => {
         l.split('').forEach((c, ci) => {
+          const x = (ci - numCols / 2) * W;
+          const y = (li - numLines / 2) * W;
+
           let tex;
           let sc = 1;
           switch (c) {
             case DOT:
               tex = 'DOT';
               ++numDots;
+              navigatable.push({ x, y });
               break;
             case DOOT:
               tex = 'DOOT';
               ++numDots;
+              navigatable.push({ x, y });
               break;
 
             case V:
@@ -103,16 +113,19 @@ export function loadMap(mapName: string): Promise<MapResult> {
               break;
 
             case ' ':
+              navigatable.push({ x, y });
               return;
 
             case 'G':
               tex = 'G';
               sc = 0.08;
+              navigatable.push({ x, y });
               break;
 
             case 'B':
               tex = 'B';
               sc = 0.08;
+              navigatable.push({ x, y });
               break;
 
             default:
@@ -125,9 +138,9 @@ export function loadMap(mapName: string): Promise<MapResult> {
               return;
           }
           res.push({
-            x: (ci - numCols / 2) * W,
-            y: (li - numLines / 2) * W,
-            tex: tex,
+            x,
+            y,
+            tex,
             scale: sc
           });
         });
@@ -135,6 +148,7 @@ export function loadMap(mapName: string): Promise<MapResult> {
       resolve({
         items: res,
         totalDots: numDots,
+        navigatable: navigatable,
         limits: {
           x0: numCols * W / -2,
           y0: numLines * W / -2,

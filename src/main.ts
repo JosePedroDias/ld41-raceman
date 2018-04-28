@@ -29,13 +29,15 @@ import {
   KC_LEFT,
   KC_RIGHT,
   isDown,
-  hookKeys
+  hookKeys,
+  justChanged,
+  KC_SPACE
 } from './keyboard';
 import { clamp, sign, lerp, dist, distSquared, rayDist } from './utils';
 import { D2R } from './consts';
 import { VERTS } from './VERTS';
 import { toWaypoints } from './waypoints';
-import { addBot, bootstrapBots, chooseCarDir2, getFoeBodies } from './bot';
+import { addBot, bootstrapBots, chooseCarDir, getFoeBodies } from './bot';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -54,6 +56,9 @@ const allSpanEl: HTMLElement = document.querySelector('#all');
 
 const engine = Engine.create();
 
+let cameraTargetBody: Body;
+let cameraTargetBodiesAvailable: Array<Body> = [];
+
 engine.world.gravity.x = 0;
 engine.world.gravity.y = 0;
 
@@ -61,11 +66,16 @@ let playerBody: Body;
 const walls: Array<Body> = [];
 
 loadMap('original2').then((res0: MapResult) => {
-  const { items: res, totalDots: LEVEL_COMPLETE_SCORE, limits: lims } = res0;
+  const {
+    items: res,
+    totalDots: LEVEL_COMPLETE_SCORE,
+    limits: lims,
+    navigatable: navs
+  } = res0;
   // @ts-ignore
   allSpanEl.firstChild.nodeValue = LEVEL_COMPLETE_SCORE;
 
-  const wps = toWaypoints(res);
+  const wps = toWaypoints(navs);
   bootstrapBots(wps, walls);
 
   res.forEach(item => {
@@ -105,8 +115,11 @@ loadMap('original2').then((res0: MapResult) => {
       b2.friction = 0.1;
       if (item.tex === 'G') {
         playerBody = b2;
+        cameraTargetBody = b2;
+        cameraTargetBodiesAvailable.push(b2);
       } else {
         addBot(b2);
+        cameraTargetBodiesAvailable.push(b2);
       }
     }
 
@@ -131,7 +144,7 @@ loadMap('original2').then((res0: MapResult) => {
   World.add(engine.world, b3);
 
   setup();
-  renderFactory(engine);
+  renderFactory(engine, wps);
 
   setZoom(2.5);
   setPosition(new Point(-140, 0));
@@ -205,7 +218,13 @@ loadMap('original2').then((res0: MapResult) => {
     pressingLeft: boolean,
     pressingRight: boolean
   ) {
-    const fwd = pressingUp ? 1 : pressingDown ? -0.5 : 0;
+    const fwd = pressingUp
+      ? carBody === playerBody
+        ? 1
+        : 0.6
+      : pressingDown
+        ? -0.5
+        : 0;
     const side = pressingLeft ? -1 : pressingRight ? 1 : 0;
 
     if (fwd) {
@@ -231,10 +250,26 @@ loadMap('original2').then((res0: MapResult) => {
   Events.on(engine, 'beforeUpdate', (ev: any) => {
     // collisionStart collisionEnd beforeUpdate beforeTick
 
+    // toggle directing between player and every bot
+    if (justChanged[KC_SPACE] && isDown[KC_SPACE]) {
+      const i = cameraTargetBodiesAvailable.findIndex(
+        o => o === cameraTargetBody
+      );
+      cameraTargetBody =
+        cameraTargetBodiesAvailable[
+          (i + 1) % cameraTargetBodiesAvailable.length
+        ];
+    }
+
+    Object.keys(justChanged).forEach(k => {
+      // @ts-ignore
+      justChanged[k] = false;
+    });
+
     const oldPos = getPosition();
     // @ts-ignore
-    setPosition(playerBody.position);
-    setZoom(lerp(clamp(0.5 / playerBody.speed, 1, 2.5), getZoom(), 0.03));
+    setPosition(cameraTargetBody.position);
+    setZoom(lerp(clamp(0.5 / cameraTargetBody.speed, 1, 2.5), getZoom(), 0.03));
 
     // manipulate car according to keys being pressed
     driveCar(
@@ -250,8 +285,12 @@ loadMap('original2').then((res0: MapResult) => {
       // @ts-ignore
       //driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
 
-      const v = chooseCarDir2(foeBody, i, playerBody);
+      const v = chooseCarDir(foeBody, i, playerBody);
       moveCar(foeBody, v);
+
+      //const dirs = chooseCarDir2(foeBody, i, playerBody);
+      // @ts-ignore
+      //driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
     });
   });
 

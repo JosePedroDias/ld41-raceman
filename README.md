@@ -20,18 +20,16 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 
 ## TODO
 
-* ~~game loop setup (rendering, physics)~~
-* ~~map loading~~
-* ~~keyboard handling~~
-* ~~collisions against walls~~
-* ~~car-like movement~~
-* ~~camera movement~~
-* ~~catch pickups~~
-* ~~enemy movement~~
-* ~~running agaist enemy is game over~~
-* ~~wrap around~~
-* ~~score and level completeness~~
+* tweak car handling (and display it?)
+* pursuit / evade
+* create artwork:
+  * pipes
+  * ghosts
+  * player car
+* vulnerable ghost mode
 * artwork work [normal lighting?](http://pixijs.io/examples/#/layers/normals.js)
+* skid marks?
+* fruits
 
 
 ## Lib code credits

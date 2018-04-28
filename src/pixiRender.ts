@@ -11,6 +11,7 @@ import {
 import { Composite, Engine, Body } from 'matter-js';
 import { BodyExt } from './main';
 import { D2R, R2D } from './consts';
+import { WP } from './waypoints';
 
 // http://pixijs.io/examples/
 
@@ -55,7 +56,7 @@ export function getPosition(): Point {
 
 function polygon(body: BodyExt) {
   const verts = body.vertices;
-  var g = new PIXI.Graphics();
+  const g = new PIXI.Graphics();
 
   // g.blendMode = PIXI.BLEND_MODES.LIGHTEN;
   g.beginFill(body.color || 0xff3300, 0.5);
@@ -100,6 +101,28 @@ function rect(body: BodyExt, app: Application) {
   return sp;
 }
 
+function renderWps(wps: Array<WP>) {
+  const g = new PIXI.Graphics();
+  //g.blendMode = PIXI.BLEND_MODES.LIGHTEN;
+  g.beginFill(0x000000, 0);
+  g.lineStyle(1, 0x00ffff, 0.33);
+
+  wps.forEach((wp: WP) => {
+    g.drawCircle(wp.position.x, wp.position.y, 4);
+    g.moveTo(wp.position.x, wp.position.y);
+    wp.connectedTo.forEach((wp2: WP) => {
+      g.lineTo(wp2.position.x, wp2.position.y);
+    });
+  });
+  g.endFill();
+  const tex: Texture = app.renderer.generateTexture(g);
+  const sp = new Sprite(tex);
+  sp.anchor.set(0.5);
+  sp.position.x -= 32;
+  sp.position.y -= 16;
+  return sp;
+}
+
 export function setup() {
   app = new Application(800, 600, { backgroundColor: 0x000000 });
   document.body.appendChild(app.view);
@@ -129,8 +152,9 @@ export function stopEngine() {
   running = false;
 }
 
-export function renderFactory(engine: Engine) {
+export function renderFactory(engine: Engine, wps: Array<WP>) {
   let t0 = 0;
+
   function render(t_: number) {
     const t = t_ / 1000;
     const dt = t - t0;
@@ -146,6 +170,9 @@ export function renderFactory(engine: Engine) {
     const bodies = Composite.allBodies(engine.world) as Array<BodyExt>;
 
     if (t === 0) {
+      const g0: DisplayObject = renderWps(wps);
+      scene.addChild(g0);
+
       bodies.forEach(body => {
         let g: DisplayObject;
         if (!('sprite' in body)) {

@@ -2,7 +2,7 @@ import { MapItem, WALL_TEXS } from './mapLoader';
 import { distSquared, sign } from './utils';
 import { Vector } from 'matter-js';
 
-const CONNECTED_DIST = 32 * 1.1;
+const CONNECTED_DIST = 32 * 1.3;
 const CONNECTED_DIST_SQ = CONNECTED_DIST * CONNECTED_DIST;
 
 export type WP = {
@@ -10,17 +10,11 @@ export type WP = {
   connectedTo: Array<WP>;
 };
 
-export function toWaypoints(mapItems: Array<MapItem>) {
-  const wps: Array<WP> = mapItems
-    .filter(mi => {
-      return WALL_TEXS.indexOf(mi.tex) === -1;
-    })
-    .map(mi => {
-      return {
-        position: { x: mi.x, y: mi.y },
-        connectedTo: []
-      };
-    });
+export function toWaypoints(navs: Array<Vector>) {
+  const wps: Array<WP> = navs.map(nav => ({
+    position: nav,
+    connectedTo: []
+  }));
 
   // fill connectedTos
   wps.forEach((wp: WP) => {
