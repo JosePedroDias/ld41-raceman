@@ -37,7 +37,11 @@ type IndexDistPair = {
   distance: number;
 };
 
-export function nearestWaypoint(waypoints: Array<WP>, position: Vector): WP {
+export function nearestWaypoint(
+  waypoints: Array<WP>,
+  position: Vector,
+  farthest: boolean = false
+): WP {
   const aux: Array<IndexDistPair> = waypoints.map((wp: WP, i: number) => {
     return {
       distance: distSquared(wp.position, position),
@@ -47,16 +51,18 @@ export function nearestWaypoint(waypoints: Array<WP>, position: Vector): WP {
   aux.sort((a: IndexDistPair, b: IndexDistPair) => {
     return sign(a.distance - b.distance);
   });
-  return waypoints[aux[0].index];
+  const i = farthest ? aux.length - 1 : 0;
+  return waypoints[aux[i].index];
 }
 
 export function chooseDirection(
   currentWP: WP,
   targetPosition: Vector,
-  blacklistedWPs: Array<WP>
+  blacklistedWPs: Array<WP>,
+  farthest: boolean = false
 ): WP {
   let wps: Array<WP> = currentWP.connectedTo.filter((wp: WP) => {
     return blacklistedWPs.indexOf(wp) === -1;
   });
-  return nearestWaypoint(wps, targetPosition);
+  return nearestWaypoint(wps, targetPosition, farthest);
 }

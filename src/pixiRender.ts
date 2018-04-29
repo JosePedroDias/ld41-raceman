@@ -104,7 +104,7 @@ function rect(body: BodyExt, app: Application) {
 function renderWps(wps: Array<WP>) {
   const g = new PIXI.Graphics();
   //g.blendMode = PIXI.BLEND_MODES.LIGHTEN;
-  g.beginFill(0x000000, 0);
+  //g.beginFill(0x000000, 0);
   g.lineStyle(1, 0x00ffff, 0.33);
 
   wps.forEach((wp: WP) => {
@@ -114,7 +114,7 @@ function renderWps(wps: Array<WP>) {
       g.lineTo(wp2.position.x, wp2.position.y);
     });
   });
-  g.endFill();
+  //g.endFill();
   const tex: Texture = app.renderer.generateTexture(g);
   const sp = new Sprite(tex);
   sp.anchor.set(0.5);

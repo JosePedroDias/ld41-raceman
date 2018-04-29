@@ -20,6 +20,8 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 
 ## TODO
 
+* evade not working?
+* render bots wps
 * tweak car handling (and display it?)
 * pursuit / evade
 * create artwork:

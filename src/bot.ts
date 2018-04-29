@@ -41,6 +41,10 @@ export function getFoeBodies(): Array<Body> {
   return foeBodies;
 }
 
+export function getFoeDatas(): Array<FoeData> {
+  return foeDatas;
+}
+
 export function addBot(foeBody: Body) {
   foeBodies.push(foeBody);
   foeDatas.push({
@@ -64,7 +68,8 @@ export function chooseCarDir(carBody: Body, i: number, playerBody: Body) {
     fd.electedWP = chooseDirection(
       fd.electedWP,
       playerBody.position,
-      fd.lastVisitedWPs
+      fd.lastVisitedWPs,
+      true
     );
   }
   fd.lastDist = d;
