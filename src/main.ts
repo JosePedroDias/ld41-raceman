@@ -37,7 +37,19 @@ import { clamp, sign, lerp, dist, distSquared, rayDist } from './utils';
 import { D2R } from './consts';
 import { VERTS } from './VERTS';
 import { toWaypoints } from './waypoints';
-import { addBot, bootstrapBots, chooseCarDir, getFoeBodies } from './bot';
+import {
+  addBot,
+  bootstrapBots,
+  chooseCarDir,
+  getFoeBodies,
+  setFleeing
+} from './bot';
+import {
+  DOT_CATEGORY,
+  WALL_CATEGORY,
+  PLAYER_CATEGORY,
+  GHOST_CATEGORY
+} from './matterCategories';
 
 export interface BodyExt extends Body {
   dims: Array<number>;
@@ -46,6 +58,8 @@ export interface BodyExt extends Body {
   kind: string;
   scale: number;
 }
+
+let fleeingTimeout: number = 0;
 
 let SCORE = 0;
 let LEVEL_COMPLETE_SCORE = 0;
@@ -88,19 +102,42 @@ loadMap('original2').then((res0: MapResult) => {
     let b2: BodyExt;
     if (poly) {
       // @ts-ignore
-      b2 = polyBody(item, poly, { isStatic });
+      b2 = polyBody(item, poly, {
+        isStatic,
+        collisionFilter: {
+          category: WALL_CATEGORY,
+          mask: PLAYER_CATEGORY | GHOST_CATEGORY | DOT_CATEGORY
+        }
+      });
     } else if (isCircle) {
       const r = item.tex === 'DOT' ? 5 : 10;
       // @ts-ignore
-      b2 = Bodies.circle(item.x, item.y, r, { isStatic });
+      b2 = Bodies.circle(item.x, item.y, r, {
+        isStatic,
+        collisionFilter: {
+          category: DOT_CATEGORY,
+          mask: PLAYER_CATEGORY
+        }
+      });
     } else {
       const w = isCar ? 14 : 32;
       const h = isCar ? 22 : 32;
+      if (!isCar) {
+        debugger;
+      }
       b2 = Bodies.rectangle(item.x, item.y, w, h, {
         isStatic,
         angle: item.tex === 'G' ? Math.PI / 2 : 0
       }) as BodyExt;
       b2.dims = [w, h];
+      // @ts-ignore
+      b2.collisionFilter = {
+        category: item.tex === 'G' ? PLAYER_CATEGORY : GHOST_CATEGORY,
+        mask:
+          item.tex === 'G'
+            ? WALL_CATEGORY | DOT_CATEGORY | PLAYER_CATEGORY | GHOST_CATEGORY
+            : WALL_CATEGORY | PLAYER_CATEGORY | GHOST_CATEGORY
+      };
     }
 
     if (item.tex === 'B') {
@@ -140,6 +177,11 @@ loadMap('original2').then((res0: MapResult) => {
   b3 = Bodies.rectangle(lims.x1 + 30, lims.y0, 64, lims.y1 - lims.y0, {
     isStatic: true
   }) as BodyExt;
+  // @ts-ignore
+  b3.collisionFilter = {
+    category: WALL_CATEGORY,
+    mask: PLAYER_CATEGORY | GHOST_CATEGORY | DOT_CATEGORY
+  };
   b3.kind = 'X';
   World.add(engine.world, b3);
 
@@ -199,6 +241,14 @@ loadMap('original2').then((res0: MapResult) => {
         // @ts-ignore
         scoreSpanEl.firstChild.nodeValue = SCORE;
         toKill.push(otherBody);
+
+        if (k === 'DOOT') {
+          setFleeing(true);
+          clearTimeout(fleeingTimeout);
+          fleeingTimeout = setTimeout(() => {
+            setFleeing(false);
+          }, 10000);
+        }
 
         if (SCORE === LEVEL_COMPLETE_SCORE) {
           stopEngine();
@@ -281,16 +331,8 @@ loadMap('original2').then((res0: MapResult) => {
     );
 
     getFoeBodies().forEach((foeBody, i) => {
-      //const dirs = chooseCarDir(foeBody, i, playerBody);
-      // @ts-ignore
-      //driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
-
       const v = chooseCarDir(foeBody, i, playerBody);
       moveCar(foeBody, v);
-
-      //const dirs = chooseCarDir2(foeBody, i, playerBody);
-      // @ts-ignore
-      //driveCar(foeBody, dirs.up, dirs.down, dirs.left, dirs.right);
     });
   });
 

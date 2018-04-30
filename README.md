@@ -20,18 +20,12 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 
 ## TODO
 
-* evade not working?
-* render bots wps
-* tweak car handling (and display it?)
-* pursuit / evade
 * create artwork:
   * pipes
   * ghosts
   * player car
-* vulnerable ghost mode
 * artwork work [normal lighting?](http://pixijs.io/examples/#/layers/normals.js)
-* skid marks?
-* fruits
+* audio?
 
 
 ## Lib code credits

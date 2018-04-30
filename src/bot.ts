@@ -11,9 +11,11 @@ import {
   vecToAngle,
   normalizeAngle,
   now,
-  polarMove
+  polarMove,
+  avg
 } from './utils';
 import { WP, nearestWaypoint, chooseDirection } from './waypoints';
+import { BodyExt } from './main';
 
 let wps: Array<WP> = [];
 let walls: Array<Body> = [];
@@ -28,10 +30,21 @@ export function bootstrapBots(_wps: Array<WP>, _walls: Array<Body>) {
   walls = _walls;
 }
 
+let fleeing = false;
+
+export function setFleeing(val: boolean) {
+  fleeing = val;
+  foeBodies.forEach((b: Body) => {
+    // @ts-ignore
+    (b as BodyExt).sprite.alpha = val ? 0.5 : 1;
+  });
+}
+
 type FoeData = {
   lastDist: number;
   electedWP: WP;
   lastVisitedWPs: Array<WP>;
+  angles: Array<number>;
 };
 
 const foeDatas: Array<FoeData> = [];
@@ -50,6 +63,7 @@ export function addBot(foeBody: Body) {
   foeDatas.push({
     electedWP: nearestWaypoint(wps, foeBody.position),
     lastVisitedWPs: [],
+    angles: [],
     lastDist: 1000000
   });
 }
@@ -58,7 +72,7 @@ export function chooseCarDir(carBody: Body, i: number, playerBody: Body) {
   const fd = foeDatas[i];
 
   const d = dist(carBody.position, fd.electedWP.position);
-  if (d > fd.lastDist) {
+  if (d < 4) {
     fd.lastVisitedWPs.push(fd.electedWP);
 
     if (fd.lastVisitedWPs.length > 3) {
@@ -69,15 +83,23 @@ export function chooseCarDir(carBody: Body, i: number, playerBody: Body) {
       fd.electedWP,
       playerBody.position,
       fd.lastVisitedWPs,
-      true
+      fleeing
     );
   }
   fd.lastDist = d;
 
   const v = {
-    x: playerBody.position.x - carBody.position.x,
-    y: playerBody.position.y - carBody.position.y
+    x: fd.electedWP.position.x - carBody.position.x,
+    y: fd.electedWP.position.y - carBody.position.y
   };
 
-  return normalize(v, 0.0003);
+  const lastAngle = Math.atan2(v.y, v.x) + Math.PI / 2;
+  // fd.angles.unshift(lastAngle);
+  // if (fd.angles.length > 8) {
+  //   fd.angles.pop();
+  // }
+  // carBody.angle = avg(fd.angles);
+  carBody.angle = lastAngle;
+
+  return normalize(v, 0.0006);
 }

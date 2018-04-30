@@ -105,7 +105,7 @@ function renderWps(wps: Array<WP>) {
   const g = new PIXI.Graphics();
   //g.blendMode = PIXI.BLEND_MODES.LIGHTEN;
   //g.beginFill(0x000000, 0);
-  g.lineStyle(1, 0x00ffff, 0.33);
+  g.lineStyle(1, 0x00ffff, 0.1);
 
   wps.forEach((wp: WP) => {
     g.drawCircle(wp.position.x, wp.position.y, 4);
@@ -170,8 +170,8 @@ export function renderFactory(engine: Engine, wps: Array<WP>) {
     const bodies = Composite.allBodies(engine.world) as Array<BodyExt>;
 
     if (t === 0) {
-      const g0: DisplayObject = renderWps(wps);
-      scene.addChild(g0);
+      // const g0: DisplayObject = renderWps(wps);
+      // scene.addChild(g0);
 
       bodies.forEach(body => {
         let g: DisplayObject;

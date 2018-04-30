@@ -21,6 +21,9 @@ export function len(v: Vector) {
 
 export function normalize(v: Vector, scale: number = 1) {
   const dst: number = len(v);
+  if (dst === 0) {
+    return v;
+  }
   return {
     x: scale * v.x / dst,
     y: scale * v.y / dst
@@ -117,4 +120,13 @@ export function now() {
 
 export function randomInt(n: number) {
   return ~~(Math.random() * n);
+}
+
+export function avg(arr: Array<number>) {
+  let n = 0;
+  const len = arr.length;
+  for (let i = 0; i < len; ++i) {
+    n += arr[i];
+  }
+  return n / len;
 }
