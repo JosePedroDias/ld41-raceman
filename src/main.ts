@@ -125,19 +125,19 @@ loadMap('original2').then((res0: MapResult) => {
       if (!isCar) {
         debugger;
       }
+      // @ts-ignore
       b2 = Bodies.rectangle(item.x, item.y, w, h, {
         isStatic,
-        angle: item.tex === 'G' ? Math.PI / 2 : 0
+        angle: item.tex === 'G' ? Math.PI / 2 : 0,
+        collisionFilter: {
+          category: item.tex === 'G' ? PLAYER_CATEGORY : GHOST_CATEGORY,
+          mask:
+            item.tex === 'G'
+              ? WALL_CATEGORY | DOT_CATEGORY | PLAYER_CATEGORY | GHOST_CATEGORY
+              : WALL_CATEGORY | PLAYER_CATEGORY | GHOST_CATEGORY
+        }
       }) as BodyExt;
       b2.dims = [w, h];
-      // @ts-ignore
-      b2.collisionFilter = {
-        category: item.tex === 'G' ? PLAYER_CATEGORY : GHOST_CATEGORY,
-        mask:
-          item.tex === 'G'
-            ? WALL_CATEGORY | DOT_CATEGORY | PLAYER_CATEGORY | GHOST_CATEGORY
-            : WALL_CATEGORY | PLAYER_CATEGORY | GHOST_CATEGORY
-      };
     }
 
     if (item.tex === 'B') {
@@ -174,14 +174,14 @@ loadMap('original2').then((res0: MapResult) => {
   }) as BodyExt;
   b3.kind = 'X';
   World.add(engine.world, b3);
-  b3 = Bodies.rectangle(lims.x1 + 30, lims.y0, 64, lims.y1 - lims.y0, {
-    isStatic: true
-  }) as BodyExt;
   // @ts-ignore
-  b3.collisionFilter = {
-    category: WALL_CATEGORY,
-    mask: PLAYER_CATEGORY | GHOST_CATEGORY | DOT_CATEGORY
-  };
+  b3 = Bodies.rectangle(lims.x1 + 30, lims.y0, 64, lims.y1 - lims.y0, {
+    isStatic: true,
+    collisionFilter: {
+      category: WALL_CATEGORY,
+      mask: PLAYER_CATEGORY | GHOST_CATEGORY | DOT_CATEGORY
+    }
+  }) as BodyExt;
   b3.kind = 'X';
   World.add(engine.world, b3);
 

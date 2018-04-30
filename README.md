@@ -20,6 +20,7 @@ The twist - you drive a race car. Ghosts may do too Possibly nitros to pick up..
 
 ## TODO
 
+* fix boundaries wrapping
 * create artwork:
   * pipes
   * ghosts
