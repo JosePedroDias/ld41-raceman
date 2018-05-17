@@ -4,10 +4,23 @@ A Ludum Dare Jam entry
 
 [Game page on LDJam](https://ldjam.com/events/ludum-dare/41/raceman).
 
-Play it here [HERE](https://josepedrodias.github.io/ld41-raceman/dist/)!
-
 Use the arrow keys to move your car. Pick every dot while avoiding the enemy cars.
 
+----
+
+Play the latest version [HERE](https://josepedrodias.github.io/ld41-raceman/dist-latest/)!
+
+(managed to implement waypoints and make the baddies navigate toward/away from the player based on their vulnerability state. cars now move in the 4 directions instead of car-like movement)
+
+(branch `master` features the latest version but still serves the ld41 deliverables in dist folder to keep serving the original submission in its original URL)
+
+----
+
+Play my LDJAM entry [HERE](https://josepedrodias.github.io/ld41-raceman/dist/)!
+
+(this version has the baddies using the same car movement interface with a vacuum-like dumb navigation process due to time constraints. also the large dots don't make baddies vulnerable)
+
+(the submitted entry code remains in branch `ld41`)
 
 ## Concept
 

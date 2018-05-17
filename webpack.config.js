@@ -19,7 +19,7 @@ module.exports = {
   },
   mode: process.env.NODE_ENV || 'development',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'dist-latest'),
     filename: '[name].js'
     //sourceMapFilename: '[name].[hash:8].map',
     //chunkFilename: '[id].[hash:8].js'
